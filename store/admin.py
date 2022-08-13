@@ -1,10 +1,8 @@
 from django.contrib import admin, messages
-from django.db.models import Count, QuerySet
-from django.contrib.contenttypes.admin import GenericTabularInline
+from django.db.models import QuerySet
+from django.db.models.aggregates import Count
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
-
-from tags.models import TaggedItem
 from . import models
 
 
@@ -22,17 +20,9 @@ class InventoryFilter(admin.SimpleListFilter):
             return queryset.filter(inventory__lt=10)
 
 
-# Register your models here.
-class TagInline(GenericTabularInline):
-    model = TaggedItem
-    autocomplete_fields = ['tag']
-    min_num = 1
-    extra = 0
-
-
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
-    actions=['clear_inventory']
+    actions = ['clear_inventory']
     list_display = ['title', 'collection_title', 'description', 'unit_price', 'inventory_status']
     list_per_page = 20
     list_select_related = ['collection']
@@ -42,7 +32,6 @@ class ProductAdmin(admin.ModelAdmin):
         'slug': ['title']
     }
     autocomplete_fields = ['collection']
-    inlines = [TagInline]
 
     def collection_title(self, product):
         return product.collection.title
@@ -75,7 +64,8 @@ class CustomerAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_editable = ['membership']
     list_filter = ['membership']
-    ordering = ['first_name', 'last_name']
+    list_select_related = ['user']
+    ordering = ['user__first_name', 'user__last_name']
     search_fields = ['first_name__istartswith', 'last_name__istartswith', 'customer']
 
     @admin.display()
@@ -102,12 +92,14 @@ class OrderItemInline(admin.TabularInline):
     max_num = 10
     extra = 0
 
+
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['customer', 'placed_at', 'payment_status']
     list_select_related = ['customer']
     autocomplete_fields = ['customer']
     inlines = [OrderItemInline]
+
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):

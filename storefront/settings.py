@@ -40,10 +40,10 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'debug_toolbar',
-    'playground',
     'store',
     'tags',
-    'likes'
+    'likes',
+    'core'
 ]
 
 MIDDLEWARE = [
@@ -143,3 +143,5 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'PAGE_SIZE': 10,
 }
+
+AUTH_USER_MODEL ='core.User'
